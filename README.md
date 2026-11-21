@@ -45,12 +45,12 @@ Each volunteer bundle contains:
 ```
 speech-recorder/
 ├── index.html       # The single-file browser recorder studio (with inlined JSZip)
-├── prompts.js       # Pre-loaded prompts for that volunteer (window.LEIN_RECORDER_DATA)
+├── prompts.js       # Pre-loaded prompts for that contributor (window.SPEECH_RECORDER_DATA)
 ├── prompts.csv      # Standard CSV format of assigned prompts
-└── README.md        # Step-by-step volunteer instructions
+└── README.md        # Step-by-step contributor instructions
 ```
 
 ---
 
 ## 📄 License
-MIT License. Developed for the Liberian English AI Initiative (LEIN) and AfriSpeech.
+MIT License. Open-source speech technology under AfriSpeech.

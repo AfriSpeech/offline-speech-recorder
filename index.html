@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEIN Speech Recorder — Offline Voice Studio</title>
-  <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
+  <title>Offline Speech Recorder — Audio Data Collection Studio</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2307254B'><circle cx='12' cy='12' r='10'/></svg>">
   <script src="prompts.js"></script>
   <style>
     :root {
@@ -59,6 +59,16 @@
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: #EFF6FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand);
     }
     .brand-logo {
       width: 32px;
@@ -381,9 +391,11 @@
   <!-- Top Navbar -->
   <header class="navbar">
     <div class="brand-group">
-      <img src="https://leinhub.org/lein-badge.png" alt="LEIN" class="brand-logo">
+      <div class="brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </div>
       <div>
-        <div class="brand-title">LEIN Voice Studio — Speech Recorder</div>
+        <div class="brand-title" id="appBrandTitle">Offline Speech Recorder Studio</div>
       </div>
     </div>
 
@@ -478,7 +490,7 @@
   <div class="modal-backdrop" id="startupModal" style="display: flex;">
     <div class="modal-box">
       <div class="modal-header">
-        <span>Welcome to LEIN Speech Recorder</span>
+        <span>Welcome to Offline Speech Recorder</span>
       </div>
       <div class="modal-body">
         <div style="font-size: 15px; font-weight: 700; color: var(--brand); margin-bottom: 8px;">
@@ -488,12 +500,12 @@
           <li><b>Microphone Permission:</b> Click Begin below and allow microphone access when your browser asks.</li>
           <li><b>Recording Flow:</b>
             <ul style="margin-top: 4px; margin-left: 18px; line-height: 1.6;">
-              <li>Press <b>Spacebar</b> to start recording, speak the sentence naturally in Liberian English / Kolokwa, then press <b>Spacebar</b> to stop.</li>
-              <li>Press <b>Tab</b> to listen to your take, or press <b>R</b> to retake if unclear.</li>
-              <li>Press <b>Ctrl + Enter</b> (or click <b>[✓ Done]</b>) to save and advance to the next sentence!</li>
+              <li>Press <b>Spacebar</b> to start recording, speak the prompt clearly and naturally, then press <b>Spacebar</b> to stop.</li>
+              <li>Press <b>Tab</b> to listen to your take, or press <b>R</b> to retake if needed.</li>
+              <li>Press <b>Ctrl + Enter</b> (or click <b>[✓ Done]</b>) to save and advance to the next prompt!</li>
             </ul>
           </li>
-          <li><b>Submitting Your Audio:</b> When finished, click <b>"Export Recordings (.ZIP)"</b> on the top bar and email it to <b>info@africancaribbeannetwork.org</b>.</li>
+          <li><b>Submitting Your Audio:</b> When finished, click <b>"Export Recordings (.ZIP)"</b> on the top bar and upload your package to your project portal or coordinator.</li>
         </ol>
       </div>
       <div class="modal-footer">
@@ -523,7 +535,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   <script>
     // =========================================================================
-    // LEIN SPEECH RECORDER — CLIENT-SIDE WAV & INDEXEDDB ENGINE
+    // OFFLINE SPEECH RECORDER — CLIENT-SIDE WAV & INDEXEDDB ENGINE
     // =========================================================================
     let state = {
       volunteerId: "volunteer_01",
@@ -543,7 +555,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
     let countdownTimer = null;
     let countdownSeconds = 3;
-    const SUBMISSION_EMAIL = "info@africancaribbeannetwork.org";
     const TARGET_SAMPLE_RATE = 24000; // 24kHz standard speech model sampling rate
 
     // Initialize on DOM load
@@ -556,11 +567,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     // PROMPTS INITIALIZATION
     // -------------------------------------------------------------
     function loadPromptsFromWindowData() {
-      if (window.LEIN_RECORDER_DATA && window.LEIN_RECORDER_DATA.prompts) {
-        state.volunteerId = window.LEIN_RECORDER_DATA.volunteer_id || "volunteer_01";
+      const dataSrc = window.SPEECH_RECORDER_DATA || window.RECORDER_DATA || window.LEIN_RECORDER_DATA;
+      if (dataSrc && dataSrc.prompts) {
+        state.volunteerId = dataSrc.volunteer_id || "contributor_01";
+        if (dataSrc.title) {
+          document.getElementById("appBrandTitle").textContent = dataSrc.title;
+        }
         document.getElementById("volunteerBadgeLabel").textContent = state.volunteerId.replace('_', ' ').toUpperCase();
 
-        state.prompts = window.LEIN_RECORDER_DATA.prompts.map(p => ({
+        state.prompts = dataSrc.prompts.map(p => ({
           id: p.prompt_id || p.id,
           text: p.text || p.sentence || "",
           status: "pending",
