@@ -1,43 +1,56 @@
-# Speech Recorder (Python Desktop GUI)
+# Offline Speech Recorder & Voice Data Collection Studio
 
-A clean, native **Python Tkinter desktop application** for offline voice prompt recording and speech dataset creation.
+An open-source, browser-based offline voice recorder application designed for community speech dataset collection and acoustic prompt recording. Operates **100% offline** on any laptop in Chrome, Edge, Safari, or Firefox with **zero installation or Python dependencies**.
 
-Directly accesses OS audio hardware (ALSA, DirectSound, WASAPI, CoreAudio) to enforce studio recording standards, block internal laptop microphones, perform real-time acoustic quality checks, and auto-save pristine 16-bit PCM WAV audio directly to disk.
+Directly encodes **16-bit uncompressed PCM WAV audio at 24kHz** via the browser's native Web Audio API, auto-saves recordings persistently in `IndexedDB`, and exports completed datasets into standardized `.zip` packages containing audio files and `metadata.csv`.
 
 ---
 
-## Quick Start
+## 🌟 Key Features
 
-### 1. Requirements
-Make sure Python 3 is installed along with the required audio packages:
+- **100% Offline in Browser:** Runs locally via `index.html`. No terminal setup, no Python, no `pip install sounddevice`.
+- **Studio-Quality 24kHz PCM WAV:** Directly encodes float32 audio samples into standard 16-bit mono PCM WAV buffers with proper 44-byte RIFF headers.
+- **Prompt Focus View:** Displays sentence prompts one at a time in large, comfortable typography with live progress tracking (`Prompt 14 of 750 • 14 Done`).
+- **Paced Workflow:** 3-second countdown before cueing each prompt, with auto-replay preview.
+- **Persistent IndexedDB Storage:** Recorded takes are saved locally in the browser's persistent database. Refreshing the page or closing the laptop loses zero takes.
+- **One-Click Export:** Exports a clean `.zip` archive containing:
+  - `recordings/` folder with all uncompressed `.wav` files.
+  - `metadata.csv` manifest (`audio_filename`, `prompt_id`, `sentence`, `duration_seconds`, `timestamp`, `volunteer_id`).
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `Spacebar` | Start / Stop recording active prompt |
+| `Tab` | Play / Pause recorded take preview |
+| `R` | Retake current prompt |
+| `Ctrl + Enter` | Mark `[✓ Done]` & advance to next prompt |
+| `Alt + Left` | Return to previous prompt |
+
+---
+
+## 📦 Creating Volunteer Packages
+
+Use `package_recorder_volunteers.py` to slice large text prompt datasets into self-contained volunteer bundles:
 ```bash
-pip install sounddevice soundfile numpy
+python package_recorder_volunteers.py \
+    --prompts-file prompts.json \
+    --num-volunteers 20 \
+    --output-dir recorder_bundles
 ```
 
-### 2. Launch the App
-- **Windows**: Double-click `run.bat` (or run `python recorder_gui.py`)
-- **Linux / Mac**: Double-click `run.sh` (or run `python3 recorder_gui.py`)
+Each volunteer bundle contains:
+```
+speech-recorder/
+├── index.html       # The single-file browser recorder studio (with inlined JSZip)
+├── prompts.js       # Pre-loaded prompts for that volunteer (window.LEIN_RECORDER_DATA)
+├── prompts.csv      # Standard CSV format of assigned prompts
+└── README.md        # Step-by-step volunteer instructions
+```
 
 ---
 
-## Features
-
-- **Direct Hardware Control**: Automatically lists all audio input devices and enforces external USB microphone / audio interface usage. **Blocks internal laptop mics** to eliminate handling noise and aggressive laptop dynamic compression.
-- **Acoustic Quality Guards**:
-  - Sample rate check: Enforces $\ge 24\text{ kHz}$ (defaults to native 44.1/48 kHz 16-bit PCM WAV).
-  - Digital clipping detector: Flags distorted audio peaks ($\ge 0.985$) and prompts volunteer to adjust distance (15–20 cm) or lower mixer gain.
-  - Voice Activity Detection (VAD): Harmonic pitch autocorrelation ($75 - 350\text{ Hz}$) detects if no human vocals were present (silent or dead mic).
-  - Background noise floor (SNR) analysis.
-  - Duration check: Flags takes that are too short ($< 2.5\text{s}$) or too long ($> 15.0\text{s}$) with a *"Keep & Mark for Review"* override option.
-- **Direct Filesystem Storage**: Automatically writes `.wav` audio files to `recordings/wavs/` and metadata to `recordings/metadata.csv`.
-- **One-Click Batch ZIP Export**: Packages recorded audio and the metadata manifest into a timestamped `.zip` archive ready for upload.
-- **Keyboard Shortcuts**:
-  - `Spacebar`: Toggle Record / Stop
-  - `→` / `←`: Next / Previous prompt
-  - `R`: Re-record current prompt
-  - `P`: Play recorded take
-
----
-
-## License
-MIT License.
+## 📄 License
+MIT License. Developed for the Liberian English AI Initiative (LEIN) and AfriSpeech.
